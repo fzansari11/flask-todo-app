@@ -45,6 +45,10 @@ def complete_task(task_id):
     db.session.commit()
     return redirect('/')
 
+@app.route('/edit/<int:task_id>', methods=['GET','POST'])
+def edit_task(task_id):
+    return redirect('/')
+
 
 if __name__ == '__main__':
     with app.app_context():
