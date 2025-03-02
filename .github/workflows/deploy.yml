@@ -69,4 +69,5 @@ jobs:
             pip install -r requirements.txt
             pkill -f "python3 app.py" || true
             nohup python3 app.py &
+            tail -f nohup.out
 
