@@ -40,7 +40,7 @@ jobs:
 
       - name: Run Unit Tests
         run: |
-          python3 -m unittest test_app.py
+          python3 -m unittest app.py
           
       - name: Deploy Flask Application
         uses: appleboy/ssh-action@v0.1.8
