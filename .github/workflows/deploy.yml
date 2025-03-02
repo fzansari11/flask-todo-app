@@ -19,7 +19,7 @@ jobs:
         with:
           key: ${{ secrets.EC2_SSH_KEY }}
           known_hosts: |
-            # If you'd like to add host fingerprints for safety:
+            # Optional: Add host fingerprints for safety (example shown below)
             ec2-your-ip.compute-1.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ...
 
       - name: Set up Python
@@ -32,7 +32,7 @@ jobs:
           sudo apt install python3.12-venv -y
           python3 -m venv venv
           source venv/bin/activate
-          
+
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -41,24 +41,40 @@ jobs:
       - name: Run Unit Tests
         run: |
           python3 -m unittest app.py
-          
-      - name: Deploy Flask Application
+
+      # ------ REMOTE DEPLOYMENT STEPS VIA SSH-ACTION ------
+
+      - name: SSH: Pull latest code
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: ${{ secrets.EC2_HOST }}        # Host/IP of your EC2
-          username: fzansari                   # or ubuntu, depending on your AMI
+          host: ${{ secrets.EC2_HOST }}
+          username: fzansari              # or ubuntu, depending on your AMI
           port: 22
-          key: ${{ secrets.EC2_SSH_KEY }}      # The private key from GitHub Secrets
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/fzansari/flask-todo-app             # Change to your app directory
-            git pull origin main              # Pull latest changes from GitHub
-            # If you have a virtualenv:
+            cd /home/fzansari/flask-todo-app
+            git pull origin main
+
+      - name: SSH: Install dependencies
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: fzansari
+          port: 22
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/fzansari/flask-todo-app
             source venv/bin/activate
             pip install -r requirements.txt
-            # If you need to restart a service, e.g., pm2 or systemd:
-            # sudo systemctl restart my_flask_app
-            # OR just run python directly:
-            # pkill -f "python app.py" || true
+
+      - name: SSH: Restart Flask app
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: fzansari
+          port: 22
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/fzansari/flask-todo-app
+            pkill -f "python app.py" || true
             nohup python3 app.py &
-          
-          
