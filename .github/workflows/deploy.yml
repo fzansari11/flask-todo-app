@@ -44,7 +44,7 @@ jobs:
 
       # ------ REMOTE DEPLOYMENT STEPS VIA SSH-ACTION ------
 
-      - name: SSH: Pull latest code
+      - name: SSH Pull latest code
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
