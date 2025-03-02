@@ -55,7 +55,7 @@ jobs:
             cd /home/fzansari/flask-todo-app
             git pull origin main
 
-      - name: SSH Install dependencies and run Flask app
+      - name: SSH Install dependencies and Run Flask app
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
