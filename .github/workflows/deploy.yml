@@ -62,7 +62,6 @@ jobs:
           username: fzansari
           port: 22
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 300
           script: |
             cd /home/fzansari/flask-todo-app
             python3 -m venv venv
@@ -75,7 +74,6 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: fzansari
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 300
           script: |
             cd /home/fzansari/flask-todo-app
             pkill -f "python3 app.py" || true
