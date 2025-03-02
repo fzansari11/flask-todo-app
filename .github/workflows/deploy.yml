@@ -5,16 +5,22 @@ on:
     branches:
       - main
 
-env:
-  HEALTHCHECK_URL: http://34.228.255.233:50000
-
 jobs:
-  Build-test-deploy:
-    runs-on: self-hosted
+  deploy:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      # Set up SSH key
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.EC2_SSH_KEY }}
+          known_hosts: |
+            # If you'd like to add host fingerprints for safety:
+            ec2-your-ip.compute-1.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ...
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -37,20 +43,22 @@ jobs:
           python3 -m unittest test_app.py
           
       - name: Deploy Flask Application
-        run: |
-          nohup python3 app.py &
-
-  health:
-    needs: Build-test-deploy
-    runs-on: self-hosted
-
-    steps:
-      - name: Health check
-        run: |
-          for i in {1..10}; do
-            curl -s -o /dev/null -w "%{http_code}" $HEALTHCHECK_URL | grep "200" && echo "Health check passed" && exit 0 || echo "Waiting for service...";
-            sleep 5;
-          done;
-          echo "Health check failed***" && exit 1
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}        # Host/IP of your EC2
+          username: fzansari                   # or ubuntu, depending on your AMI
+          port: 22
+          key: ${{ secrets.EC2_SSH_KEY }}      # The private key from GitHub Secrets
+          script: |
+            cd /home/fzansari             # Change to your app directory
+            git pull origin main              # Pull latest changes from GitHub
+            # If you have a virtualenv:
+            source venv/bin/activate
+            pip install -r requirements.txt
+            # If you need to restart a service, e.g., pm2 or systemd:
+            # sudo systemctl restart my_flask_app
+            # OR just run python directly:
+            # pkill -f "python app.py" || true
+            nohup python3 app.py &
           
           
