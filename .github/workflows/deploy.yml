@@ -55,17 +55,29 @@ jobs:
             cd /home/fzansari/flask-todo-app
             git pull origin main
 
-      - name: SSH Install dependencies and Run Flask app
+      - name: SSH Install dependencies
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
           username: fzansari
           port: 22
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 300
           script: |
             cd /home/fzansari/flask-todo-app
             python3 -m venv venv
             source venv/bin/activate
             pip install -r requirements.txt
+
+      - name: SSH Restart app
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: fzansari
+          key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 300
+          script: |
+            cd /home/fzansari/flask-todo-app
             pkill -f "python3 app.py" || true
             nohup python3 app.py &
+            exit 0
