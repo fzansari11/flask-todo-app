@@ -50,7 +50,7 @@ jobs:
           port: 22
           key: ${{ secrets.EC2_SSH_KEY }}      # The private key from GitHub Secrets
           script: |
-            cd /home/fzansari             # Change to your app directory
+            cd /home/fzansari/flask-todo-app             # Change to your app directory
             git pull origin main              # Pull latest changes from GitHub
             # If you have a virtualenv:
             source venv/bin/activate
