@@ -55,7 +55,7 @@ jobs:
             cd /home/fzansari/flask-todo-app
             git pull origin main
 
-      - name: SSH: Install dependencies
+      - name: SSH Install dependencies
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -67,7 +67,7 @@ jobs:
             source venv/bin/activate
             pip install -r requirements.txt
 
-      - name: SSH: Restart Flask app
+      - name: SSH Restart Flask app
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
